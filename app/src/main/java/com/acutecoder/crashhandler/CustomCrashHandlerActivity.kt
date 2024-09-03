@@ -1,10 +1,16 @@
 package com.acutecoder.crashhandler
 
+import android.content.ClipData
+import android.content.ClipDescription
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,17 +19,21 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -35,29 +45,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
 import com.acutecoder.crashhandler.helper.ErrorLog
 import com.acutecoder.crashhandler.ui.theme.CrashHandlerTheme
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import java.io.File
 
 class CustomCrashHandlerActivity : ComponentActivity() {
 
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
         setContent {
             CrashHandlerTheme {
-                Scaffold(
+                val containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.6f)
+
+                Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.background)
+                        .background(containerColor)
                         .systemBarsPadding(),
-                    topBar = { TopAppBar(title = { Text(text = "Error Log") }) },
-                    bottomBar = { BottomBar() }
-                ) { paddingValues ->
+                ) {
                     val context = LocalContext.current
                     var errorLog by remember { mutableStateOf<ErrorLog?>(null) }
 
@@ -67,35 +77,72 @@ class CustomCrashHandlerActivity : ComponentActivity() {
                         }
                     }
 
+                    TopBar(errorLog?.lastErrorTime)
+
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(paddingValues),
+                            .weight(1f),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         errorLog?.let {
-                            Text(text = "Time: ${it.lastErrorTime}")
                             Text(
                                 text = it.simplifiedLog(),
                                 modifier = Modifier
                                     .padding(12.dp)
                                     .clip(RoundedCornerShape(12.dp))
-                                    .background(MaterialTheme.colorScheme.secondaryContainer)
+                                    .background(MaterialTheme.colorScheme.errorContainer)
                                     .verticalScroll(rememberScrollState())
                                     .horizontalScroll(rememberScrollState())
                                     .padding(12.dp),
-                                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                color = MaterialTheme.colorScheme.onErrorContainer,
                             )
                         } ?: CircularProgressIndicator()
                     }
+
+                    BottomBar(errorText = { errorLog?.simplifiedLog() ?: "" })
                 }
             }
         }
     }
 
     @Composable
-    private fun BottomBar() {
+    fun TopBar(lastErrorTime: String?) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = "Error Log",
+                modifier = Modifier.weight(1f),
+            )
+
+            if (lastErrorTime != null) {
+                Text(
+                    text = "Time: $lastErrorTime",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.6f),
+                    modifier = Modifier.padding(horizontal = 6.dp)
+                )
+            }
+
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = "Close",
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .clickable { finish() }
+                    .padding(8.dp)
+            )
+        }
+    }
+
+    @Composable
+    private fun BottomBar(errorText: () -> String) {
         val context = LocalContext.current
 
         Row(
@@ -103,21 +150,70 @@ class CustomCrashHandlerActivity : ComponentActivity() {
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp)
         ) {
-            Button(onClick = {
-                context.crashHandler.clearAll()
-                finish()
-            }) {
+            Button(
+                onClick = {
+                    context.crashHandler.clearAll()
+                    finish()
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error,
+                    contentColor = MaterialTheme.colorScheme.onError,
+                )
+            ) {
                 Text(text = "Clear all")
             }
 
             Spacer(modifier = Modifier.weight(1f))
 
-            Button(onClick = {
-                // To share file use context.crashHandler.crashFile
-            }) {
+            Button(
+                onClick = {
+                    val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                    val data = ClipData(
+                        ClipDescription("Error log", arrayOf("text/plain")),
+                        ClipData.Item(errorText())
+                    )
+                    clipboard.setPrimaryClip(data)
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error,
+                    contentColor = MaterialTheme.colorScheme.onError,
+                )
+            ) {
+                Text(text = "Copy log")
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Button(
+                onClick = {
+                    context.shareLog(context.crashHandler.crashFile)
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error,
+                    contentColor = MaterialTheme.colorScheme.onError,
+                )
+            ) {
                 Text(text = "Share log")
             }
         }
     }
 
+}
+
+private fun Context.shareLog(file: File) {
+    if (file.exists()) {
+        val uri = FileProvider.getUriForFile(
+            this,
+            "$packageName.fileprovider",
+            file
+        )
+
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "application/octet-stream"
+            putExtra(Intent.EXTRA_STREAM, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+
+        startActivity(Intent.createChooser(intent, "Share log file"))
+    }
 }
