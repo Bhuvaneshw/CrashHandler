@@ -48,15 +48,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import com.acutecoder.crashhandler.core.ErrorLog
 import com.acutecoder.crashhandler.ui.theme.CrashHandlerTheme
 import com.acutecoder.crashhandler.util.crashHandler
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.io.File
 
@@ -81,7 +84,6 @@ class CustomCrashHandlerActivity : ComponentActivity() {
 
                     LaunchedEffect(Unit) {
                         withContext(Dispatchers.IO) {
-                            delay(4000)
                             errorLog = context.crashHandler.loadErrorLog()
                         }
                     }
@@ -123,7 +125,12 @@ private fun ErrorBox(modifier: Modifier, errorLog: ErrorLog?) {
         errorLog?.let {
             SelectionContainer {
                 Text(
-                    text = it.simplifiedLog(),
+                    text = it.simplifiedLog()
+                        .buildAnnotation(
+                            "\\w+(\\.\\w+)+:\\s.*\n".toRegex() to MaterialTheme.colorScheme.error,
+                            "\\([\\w.]+:\\d+\\)".toRegex() to MaterialTheme.colorScheme.primary,
+                            "and \\d+ more errors?".toRegex() to MaterialTheme.colorScheme.primary,
+                        ),
                     modifier = Modifier.padding(12.dp),
                     color = MaterialTheme.colorScheme.onErrorContainer,
                 )
@@ -254,3 +261,36 @@ private fun Context.shareLog(file: File) {
         startActivity(Intent.createChooser(intent, "Share log file"))
     } else Toast.makeText(this, "Crash file not found!", Toast.LENGTH_SHORT).show()
 }
+
+private fun String.buildAnnotation(vararg regexPairs: Pair<Regex, Color>) =
+    buildAnnotatedString {
+        var currentIndex = 0
+
+        val matches = mutableListOf<Triple<Int, Int, Color>>()
+
+        regexPairs.forEach { (regex, highlightColor) ->
+            regex.findAll(this@buildAnnotation).forEach { matchResult ->
+                val startIndex = matchResult.range.first
+                val endIndex = matchResult.range.last + 1
+                matches.add(Triple(startIndex, endIndex, highlightColor))
+            }
+        }
+
+        matches.sortBy { it.first }
+
+        matches.forEach { (startIndex, endIndex, highlightColor) ->
+            if (currentIndex <= startIndex) {
+                append(this@buildAnnotation.substring(currentIndex, startIndex))
+
+                withStyle(style = SpanStyle(color = highlightColor)) {
+                    append(this@buildAnnotation.substring(startIndex, endIndex))
+                }
+
+                currentIndex = endIndex
+            }
+        }
+
+        if (currentIndex < this@buildAnnotation.length) {
+            append(this@buildAnnotation.substring(currentIndex))
+        }
+    }
