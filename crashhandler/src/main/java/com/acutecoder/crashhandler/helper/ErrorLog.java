@@ -30,15 +30,12 @@ public class ErrorLog {
         if (errors == null) return "No error logs found!";
 
         switch (errors.size()) {
-            case 1: {
+            case 1:
                 return errors.get(0);
-            }
-            case 2: {
-                return errors.get(0) + "\n and 1 more error";
-            }
-            default: {
-                return errors.get(0) + "\n and ${it.size - 1} more error(s)";
-            }
+            case 2:
+                return errors.get(0) + "\n\n and 1 more error";
+            default:
+                return errors.get(0) + "\n\n and " + (errors.size() - 1) + " more errors";
         }
     }
 }
