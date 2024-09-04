@@ -35,6 +35,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,6 +49,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import com.acutecoder.crashhandler.core.ErrorLog
@@ -125,7 +128,7 @@ private fun ErrorBox(modifier: Modifier, errorLog: ErrorLog?) {
                     color = MaterialTheme.colorScheme.onErrorContainer,
                 )
             }
-        } ?: CircularProgressIndicator()
+        } ?: CircularProgressIndicator(color = MaterialTheme.colorScheme.error)
     }
 }
 
@@ -183,7 +186,9 @@ private fun BottomBar(errorText: () -> String, exitScreen: () -> Unit) {
 
         Spacer(modifier = Modifier.weight(1f))
 
-        ErrorButton(
+        ErrorIconButton(
+            resId = R.drawable.baseline_content_copy_24,
+            contentDescription = "Copy log",
             onClick = {
                 val clipboard =
                     context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -193,19 +198,17 @@ private fun BottomBar(errorText: () -> String, exitScreen: () -> Unit) {
                 )
                 clipboard.setPrimaryClip(data)
             }
-        ) {
-            Text(text = "Copy log")
-        }
+        )
 
         Spacer(modifier = Modifier.width(8.dp))
 
-        ErrorButton(
+        ErrorIconButton(
+            resId = R.drawable.baseline_share_24,
+            contentDescription = "Share log",
             onClick = {
                 context.shareLog(context.crashHandler.crashFile)
             }
-        ) {
-            Text(text = "Share log")
-        }
+        )
     }
 }
 
@@ -219,6 +222,23 @@ private fun ErrorButton(onClick: () -> Unit, content: @Composable RowScope.() ->
         ),
         content = content
     )
+}
+
+@Composable
+private fun ErrorIconButton(resId: Int, contentDescription: String?, onClick: () -> Unit) {
+    IconButton(
+        onClick = onClick,
+        colors = IconButtonDefaults.iconButtonColors(
+            containerColor = MaterialTheme.colorScheme.error,
+            contentColor = MaterialTheme.colorScheme.onError,
+        )
+    ) {
+        Icon(
+            painter = painterResource(resId),
+            contentDescription = contentDescription,
+            modifier = Modifier.padding(10.dp)
+        )
+    }
 }
 
 private fun Context.shareLog(file: File) {
