@@ -2,12 +2,16 @@ package com.acutecoder.crashhandler;
 
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
+import android.os.Looper;
 import android.util.Log;
 
+import com.acutecoder.crashhandler.helper.AndroidErrorLogger;
 import com.acutecoder.crashhandler.helper.CrashCallback;
 import com.acutecoder.crashhandler.helper.DefaultErrorMessageFormatter;
 import com.acutecoder.crashhandler.helper.ErrorLog;
 import com.acutecoder.crashhandler.helper.ErrorMessageFormatter;
+import com.acutecoder.crashhandler.helper.CrashLogger;
+import com.acutecoder.crashhandler.helper.ReadLogOnMainThreadException;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -35,12 +39,12 @@ public interface CrashHandler {
     SharedPreferences getCrashPreference();
 
     default void initCrashHandler() {
-        initCrashHandler(Thread.currentThread(), DefaultErrorMessageFormatter.INSTANCE, null, true);
+        initCrashHandler(Thread.currentThread(), DefaultErrorMessageFormatter.INSTANCE, null, new AndroidErrorLogger());
     }
 
-    default void initCrashHandler(@NotNull Thread thread, @NotNull ErrorMessageFormatter messageFormatter, @Nullable CrashCallback callback, boolean logToAndroidLogcat) {
+    default void initCrashHandler(@NotNull Thread thread, @NotNull ErrorMessageFormatter messageFormatter, @Nullable CrashCallback callback, @Nullable CrashLogger logger) {
         thread.setUncaughtExceptionHandler((t, throwable) -> {
-                    onCatchThrowable(messageFormatter, t, throwable, logToAndroidLogcat);
+                    onCatchThrowable(messageFormatter, t, throwable, logger);
                     if (callback != null)
                         callback.onCrash(throwable);
                     System.exit(0);
@@ -48,16 +52,16 @@ public interface CrashHandler {
         );
     }
 
-    default void onCatchThrowable(@NotNull ErrorMessageFormatter messageFormatter, @NotNull Thread thread, @NotNull Throwable throwable, boolean logToAndroidLogcat) {
+    default void onCatchThrowable(@NotNull ErrorMessageFormatter messageFormatter, @NotNull Thread thread, @NotNull Throwable throwable, @Nullable CrashLogger logger) {
         try {
             if (messageFormatter == DefaultErrorMessageFormatter.INSTANCE) {
                 String message = messageFormatter.format(throwable);
-                if (logToAndroidLogcat)
-                    Log.e("Uncaught Exception", message);
+                if (logger != null)
+                    logger.log("AndroidRuntime", message);
                 onWriteThrowableMessage(getCrashFile(), message);
             } else {
-                if (logToAndroidLogcat)
-                    Log.e("Uncaught Exception", DefaultErrorMessageFormatter.INSTANCE.format(throwable));
+                if (logger != null)
+                    logger.log("AndroidRuntime", DefaultErrorMessageFormatter.INSTANCE.format(throwable));
                 onWriteThrowableMessage(getCrashFile(), messageFormatter.format(throwable));
             }
         } catch (IOException ignored) {
@@ -101,11 +105,11 @@ public interface CrashHandler {
         }
     }
 
-    /**
-     * Do not call in MainThread
-     */
     @NotNull
-    default ErrorLog loadErrorLog() {
+    default ErrorLog loadErrorLog() throws ReadLogOnMainThreadException {
+        if (Looper.myLooper() == Looper.getMainLooper())
+            throw new ReadLogOnMainThreadException();
+
         List<String> errors = new ArrayList<>();
         StringBuilder plainError = new StringBuilder();
         try (

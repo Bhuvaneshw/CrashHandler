@@ -66,7 +66,7 @@ class CrashHandlerActivity : Activity() {
             intent.setType("text/plain")
             intent.putExtra(
                 Intent.EXTRA_TEXT,
-                errorLog?.errors?.joinToString(separator = "\n-------Error Log-------\n") { it })
+                errorLog?.errors?.joinToString(separator = crashHandler.separator) { it })
             intent.putExtra(Intent.EXTRA_SUBJECT, "Share Error log")
             startActivity(Intent.createChooser(intent, "Share"))
         }
