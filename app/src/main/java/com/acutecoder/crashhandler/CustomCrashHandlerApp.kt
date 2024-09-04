@@ -7,6 +7,14 @@ class CustomCrashHandlerApp : CrashHandlerApplication() {
 
     init {
         installCrashHandler(callback = RestartAppCallback(this))
+
+        //OR
+        // installCrashHandler(
+        //    thread = Thread.currentThread(),
+        //    messageFormatter = DefaultErrorMessageFormatter,
+        //    callback = null,
+        //    logger = AndroidErrorLogger(),
+        //)
     }
 
     override fun startCrashHandlerActivity(defaultActivityClass: Class<*>) {

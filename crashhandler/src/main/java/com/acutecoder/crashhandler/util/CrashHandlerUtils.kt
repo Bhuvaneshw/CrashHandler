@@ -13,7 +13,7 @@ fun CrashHandler.installCrashHandler(
     thread: Thread = Thread.currentThread(),
     messageFormatter: ErrorMessageFormatter = DefaultErrorMessageFormatter,
     callback: CrashCallback? = null,
-    logger: CrashLogger = AndroidErrorLogger(),
+    logger: CrashLogger? = AndroidErrorLogger(),
 ) {
     initCrashHandler(thread, messageFormatter, callback, logger)
 }
