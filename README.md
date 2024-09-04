@@ -25,50 +25,50 @@ A Crash Handling library for Android projects that automatically stores all cras
 
 ### 1.1 Gradle - Kotlin DSL
 Step 1: Project level build.gradle.kts / settings.gradle.kts
-<pre>
+```
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         mavenCentral()
-        <b>maven("https://jitpack.io")</b>
+        maven("https://jitpack.io")
     }
 }
-</pre>
+```
 
 Step 2: Module level build.gradle<br>
-<pre>
+```
 dependencies {
-    <b>implementation("com.github.Bhuvaneshw:CrashHandler:<i>$version</i>")</b>
+    implementation("com.github.Bhuvaneshw:CrashHandler:$version")
 }
-</pre>
+```
 Replace <b>$version</b> with latest version<br>
 Latest Version: <br>
 [![](https://jitpack.io/v/Bhuvaneshw/CrashHandler.svg)](https://jitpack.io/#Bhuvaneshw/CrashHandler)<br><br>
 <b>Example:</b>
-<pre>
+```
 dependencies {
-    <b>implementation("com.github.Bhuvaneshw:CrashHandler:1.0.0")</b>
+    implementation("com.github.Bhuvaneshw:CrashHandler:1.0.0")
 }
-</pre>
+```
 
 ### 1.2 Gradle - Groovy DSL
 Step 1: Project level build.gradle / settings.gradle
-<pre>
+```
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         mavenCentral()
-        <b>maven { url 'https://jitpack.io' }</b>
+        maven { url 'https://jitpack.io' }
     }
 }
-</pre>
+```
 
 Step 2: Module level build.gradle<br>
-<pre>
+```
 dependencies {
-    <b>implementation 'com.github.Bhuvaneshw:CrashHandler:<i>$version</i>'</b>
+    implementation 'com.github.Bhuvaneshw:CrashHandler:$version'
 }
-</pre>
+```
 <hr>
 <br>
 
@@ -78,7 +78,7 @@ dependencies {
 Extend Application with CrashHandlerApplication and call installCrashHandler()
 <br><br>
 Koltin
-<pre>
+```
 class MyApp : CrashHandlerApplication() {
     init {
         installCrashHandler()
@@ -92,11 +92,11 @@ class MyApp : CrashHandlerApplication() {
         //)
     }
 }
-</pre>
+```
 <br>
 
 Java
-<pre>
+```
 public class MyApp extends CrashHandlerApplication {
     @Override
     public void onCreate() {
@@ -107,16 +107,16 @@ public class MyApp extends CrashHandlerApplication {
         //initCrashHandler(Thread.currentThread(), DefaultErrorMessageFormatter.INSTANCE, new RestartAppCallback(this), new AndroidErrorLogger());
     }
 }
-</pre>
+```
 <br>
 Register in AndroidManifiest
-<pre>
+```
 &lt;application
         <b>android:name=".MyApp"</b>
         ...&gt;
     ...
 &lt;/application&gt;
-</pre>
+```
 <br>
 
 > [!NOTE]
@@ -139,17 +139,17 @@ You can provide Custom Logger by extending [CrashLogger](crashhandler/src/main/j
 Provide RestartAppCallback() while initializing the crash handler
 <br><br>
 Kotlin
-<pre>
+```
 class MyApp : CrashHandlerApplication() {
     init {
-        installCrashHandler(<b>callback = RestartAppCallback(this)</b>)
+        installCrashHandler(callback = RestartAppCallback(this))
     }
 }
-</pre>
+```
 <br>
 
 Java
-<pre>
+```
 public class MyApp extends CrashHandlerApplication {
     @Override
     public void onCreate() {
@@ -158,12 +158,12 @@ public class MyApp extends CrashHandlerApplication {
         initCrashHandler(
           Thread.currentThread(), 
           DefaultErrorMessageFormatter.INSTANCE,
-          <b>new RestartAppCallback(this)</b>,
+          new RestartAppCallback(this),
           new AndroidErrorLogger()
         );
     }
 }
-</pre>
+```
 <br>
 
 ### 2.4 Custom Crash Handler
@@ -171,7 +171,7 @@ public class MyApp extends CrashHandlerApplication {
 Override startCrashHandlerActivity() and provide your custom activity class
 <br><br>
 Kotlin
-<pre>
+```
 class CustomCrashHandlerApp : CrashHandlerApplication() {
 
     init {
@@ -183,11 +183,11 @@ class CustomCrashHandlerApp : CrashHandlerApplication() {
     }
 
 }
-</pre>
+```
 <br>
 
 Java
-<pre>
+```
 
 public class DefaultCrashHandlerApp extends CrashHandlerApplication {
 
@@ -203,7 +203,7 @@ public class DefaultCrashHandlerApp extends CrashHandlerApplication {
     }
 }
 
-</pre>
+```
 <br>
 
 ### 2.5 Loading crash data in Activity
@@ -212,25 +212,25 @@ public class DefaultCrashHandlerApp extends CrashHandlerApplication {
 <br>
 
 Kotlin
-<pre>
+```
 val log: ErrorLog = crashHandler.loadErrorLog()
 val errors: MutableList<String>? = log.errors
 val simplifiedLog: String = log.simplifiedLog()
 val lastErrorTime: String? = log.lastErrorTime
-</pre>
+```
 > [!TIP]
 > Using coroutine with IO dispatcher is recommended
 <br>
 
 Java
-<pre>
+```
 ErrorLog log = CrashHandlerUtilsKt.getCrashHandler(context).loadErrorLog();
 //Works only when the context.applicationContext is an instance of CrashHandler,
 //i.e The application must implement CrashHandler, like extending CrashHandlerApplication
 List<String> errors = log.getErrors();
 String simplifiedLog = log.simplifiedLog();
 String lastErrorTime = log.getLastErrorTime();
-</pre>
+```
 
 ## 3. Custom Crash Handler UI
 
