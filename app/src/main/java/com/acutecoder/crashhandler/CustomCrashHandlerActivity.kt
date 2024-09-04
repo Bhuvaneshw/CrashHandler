@@ -15,6 +15,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,6 +26,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -49,6 +51,7 @@ import androidx.core.content.FileProvider
 import com.acutecoder.crashhandler.helper.ErrorLog
 import com.acutecoder.crashhandler.ui.theme.CrashHandlerTheme
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.io.File
 
@@ -73,140 +76,152 @@ class CustomCrashHandlerActivity : ComponentActivity() {
 
                     LaunchedEffect(Unit) {
                         withContext(Dispatchers.IO) {
+                            delay(4000)
                             errorLog = context.crashHandler.loadErrorLog()
                         }
                     }
 
-                    TopBar(errorLog?.lastErrorTime)
+                    TopBar(
+                        lastErrorTime = errorLog?.lastErrorTime,
+                        exitScreen = this@CustomCrashHandlerActivity::finish
+                    )
 
-                    Column(
+                    ErrorBox(
                         modifier = Modifier
                             .fillMaxSize()
                             .weight(1f),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        errorLog?.let {
-                            Text(
-                                text = it.simplifiedLog(),
-                                modifier = Modifier
-                                    .padding(12.dp)
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .background(MaterialTheme.colorScheme.errorContainer)
-                                    .verticalScroll(rememberScrollState())
-                                    .horizontalScroll(rememberScrollState())
-                                    .padding(12.dp),
-                                color = MaterialTheme.colorScheme.onErrorContainer,
-                            )
-                        } ?: CircularProgressIndicator()
-                    }
+                        errorLog = errorLog
+                    )
 
-                    BottomBar(errorText = { errorLog?.simplifiedLog() ?: "" })
+                    BottomBar(
+                        errorText = { errorLog?.simplifiedLog() ?: "No log found!" },
+                        exitScreen = this@CustomCrashHandlerActivity::finish
+                    )
                 }
             }
         }
     }
+}
 
-    @Composable
-    fun TopBar(lastErrorTime: String?) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = "Error Log",
-                modifier = Modifier.weight(1f),
-            )
-
-            if (lastErrorTime != null) {
+@Composable
+private fun ErrorBox(modifier: Modifier, errorLog: ErrorLog?) {
+    Column(
+        modifier = modifier
+            .padding(12.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.errorContainer)
+            .verticalScroll(rememberScrollState())
+            .horizontalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        errorLog?.let {
+            SelectionContainer {
                 Text(
-                    text = "Time: $lastErrorTime",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.6f),
-                    modifier = Modifier.padding(horizontal = 6.dp)
+                    text = it.simplifiedLog(),
+                    modifier = Modifier.padding(12.dp),
+                    color = MaterialTheme.colorScheme.onErrorContainer,
                 )
             }
+        } ?: CircularProgressIndicator()
+    }
+}
 
-            Icon(
-                imageVector = Icons.Default.Close,
-                contentDescription = "Close",
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .clickable { finish() }
-                    .padding(8.dp)
+@Composable
+private fun TopBar(lastErrorTime: String?, exitScreen: () -> Unit) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = "Error Log",
+            modifier = Modifier.weight(1f),
+        )
+
+        if (lastErrorTime != null) {
+            Text(
+                text = "Time: $lastErrorTime",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.6f),
+                modifier = Modifier.padding(horizontal = 6.dp)
             )
         }
+
+        Icon(
+            imageVector = Icons.Default.Close,
+            contentDescription = "Close",
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .clickable { exitScreen() }
+                .padding(8.dp)
+        )
     }
+}
 
-    @Composable
-    private fun BottomBar(errorText: () -> String) {
-        val context = LocalContext.current
+@Composable
+private fun BottomBar(errorText: () -> String, exitScreen: () -> Unit) {
+    val context = LocalContext.current
 
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp)
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp)
+    ) {
+        ErrorButton(
+            onClick = {
+                context.crashHandler.clearAll()
+                exitScreen()
+            }
         ) {
-            Button(
-                onClick = {
-                    context.crashHandler.clearAll()
-                    finish()
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error,
-                    contentColor = MaterialTheme.colorScheme.onError,
+            Text(text = "Clear all")
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        ErrorButton(
+            onClick = {
+                val clipboard =
+                    context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val data = ClipData(
+                    ClipDescription("Error log", arrayOf("text/plain")),
+                    ClipData.Item(errorText())
                 )
-            ) {
-                Text(text = "Clear all")
+                clipboard.setPrimaryClip(data)
             }
+        ) {
+            Text(text = "Copy log")
+        }
 
-            Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.width(8.dp))
 
-            Button(
-                onClick = {
-                    val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                    val data = ClipData(
-                        ClipDescription("Error log", arrayOf("text/plain")),
-                        ClipData.Item(errorText())
-                    )
-                    clipboard.setPrimaryClip(data)
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error,
-                    contentColor = MaterialTheme.colorScheme.onError,
-                )
-            ) {
-                Text(text = "Copy log")
+        ErrorButton(
+            onClick = {
+                context.shareLog(context.crashHandler.crashFile)
             }
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Button(
-                onClick = {
-                    context.shareLog(context.crashHandler.crashFile)
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error,
-                    contentColor = MaterialTheme.colorScheme.onError,
-                )
-            ) {
-                Text(text = "Share log")
-            }
+        ) {
+            Text(text = "Share log")
         }
     }
+}
 
+@Composable
+private fun ErrorButton(onClick: () -> Unit, content: @Composable RowScope.() -> Unit) {
+    Button(
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.error,
+            contentColor = MaterialTheme.colorScheme.onError,
+        ),
+        content = content
+    )
 }
 
 private fun Context.shareLog(file: File) {
     if (file.exists()) {
-        val uri = FileProvider.getUriForFile(
-            this,
-            "$packageName.fileprovider",
-            file
-        )
+        val uri = FileProvider.getUriForFile(this, "$packageName.fileprovider", file)
 
         val intent = Intent(Intent.ACTION_SEND).apply {
             type = "application/octet-stream"
