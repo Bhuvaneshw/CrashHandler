@@ -13,7 +13,8 @@ import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.window.OnBackInvokedDispatcher
-import com.acutecoder.crashhandler.helper.ErrorLog
+import com.acutecoder.crashhandler.core.ErrorLog
+import com.acutecoder.crashhandler.util.crashHandler
 
 class CrashHandlerActivity : Activity() {
 

@@ -1,10 +1,8 @@
-package com.acutecoder.crashhandler;
+package com.acutecoder.crashhandler.util
 
-class Constants {
-
-    static final String CRASH_FILE_NAME = "crash.txt";
-    static final String SEPARATOR = "-------Error Log-------";
-    static final String KEY_NEED_TO_SHOW_LOG = "need_to_show_log";
-    static final String KEY_LAST_EXCEPTION_TIME = "last_exception_time";
-
+internal object Constants {
+    const val CRASH_FILE_NAME: String = "crash.txt"
+    const val SEPARATOR: String = "----------Error Log----------"
+    const val KEY_NEED_TO_SHOW_LOG: String = "need_to_show_log"
+    const val KEY_LAST_EXCEPTION_TIME: String = "last_exception_time"
 }

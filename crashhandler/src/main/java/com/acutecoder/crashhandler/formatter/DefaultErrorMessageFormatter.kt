@@ -1,4 +1,4 @@
-package com.acutecoder.crashhandler.helper
+package com.acutecoder.crashhandler.formatter
 
 import java.io.PrintWriter
 import java.io.StringWriter

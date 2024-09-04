@@ -1,17 +1,16 @@
-package com.acutecoder.crashhandler;
+package com.acutecoder.crashhandler.core;
 
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.os.Looper;
 import android.util.Log;
 
-import com.acutecoder.crashhandler.helper.AndroidErrorLogger;
-import com.acutecoder.crashhandler.helper.CrashCallback;
-import com.acutecoder.crashhandler.helper.DefaultErrorMessageFormatter;
-import com.acutecoder.crashhandler.helper.ErrorLog;
-import com.acutecoder.crashhandler.helper.ErrorMessageFormatter;
-import com.acutecoder.crashhandler.helper.CrashLogger;
-import com.acutecoder.crashhandler.helper.ReadLogOnMainThreadException;
+import com.acutecoder.crashhandler.callback.CrashCallback;
+import com.acutecoder.crashhandler.formatter.DefaultErrorMessageFormatter;
+import com.acutecoder.crashhandler.formatter.ErrorMessageFormatter;
+import com.acutecoder.crashhandler.logger.AndroidErrorLogger;
+import com.acutecoder.crashhandler.logger.CrashLogger;
+import com.acutecoder.crashhandler.util.Constants;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -85,8 +84,9 @@ public interface CrashHandler {
             bw = new BufferedWriter(fw);
             out = new PrintWriter(bw);
 
-            out.println(getSeparator());
             out.println(message);
+            out.println(getSeparator());
+            out.println();
 
             out.close();
         } finally {
@@ -109,6 +109,8 @@ public interface CrashHandler {
     default ErrorLog loadErrorLog() throws ReadLogOnMainThreadException {
         if (Looper.myLooper() == Looper.getMainLooper())
             throw new ReadLogOnMainThreadException();
+
+        if (!getCrashFile().exists()) return new ErrorLog(null, null);
 
         List<String> errors = new ArrayList<>();
         StringBuilder plainError = new StringBuilder();

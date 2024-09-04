@@ -1,12 +1,13 @@
-package com.acutecoder.crashhandler
+package com.acutecoder.crashhandler.util
 
 import android.content.Context
-import com.acutecoder.crashhandler.helper.AndroidErrorLogger
-import com.acutecoder.crashhandler.helper.CrashCallback
-import com.acutecoder.crashhandler.helper.DefaultErrorMessageFormatter
-import com.acutecoder.crashhandler.helper.ErrorMessageFormatter
-import com.acutecoder.crashhandler.helper.CrashLogger
-import com.acutecoder.crashhandler.helper.NotCrashHandlerInstanceException
+import com.acutecoder.crashhandler.core.CrashHandler
+import com.acutecoder.crashhandler.logger.AndroidErrorLogger
+import com.acutecoder.crashhandler.callback.CrashCallback
+import com.acutecoder.crashhandler.formatter.DefaultErrorMessageFormatter
+import com.acutecoder.crashhandler.formatter.ErrorMessageFormatter
+import com.acutecoder.crashhandler.logger.CrashLogger
+import com.acutecoder.crashhandler.core.NotCrashHandlerInstanceException
 
 fun CrashHandler.installCrashHandler(
     thread: Thread = Thread.currentThread(),

@@ -6,6 +6,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -48,8 +49,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
-import com.acutecoder.crashhandler.helper.ErrorLog
+import com.acutecoder.crashhandler.core.ErrorLog
 import com.acutecoder.crashhandler.ui.theme.CrashHandlerTheme
+import com.acutecoder.crashhandler.util.crashHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -230,5 +232,5 @@ private fun Context.shareLog(file: File) {
         }
 
         startActivity(Intent.createChooser(intent, "Share log file"))
-    }
+    } else Toast.makeText(this, "Crash file not found!", Toast.LENGTH_SHORT).show()
 }

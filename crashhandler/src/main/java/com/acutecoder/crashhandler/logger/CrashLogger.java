@@ -1,4 +1,4 @@
-package com.acutecoder.crashhandler.helper;
+package com.acutecoder.crashhandler.logger;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

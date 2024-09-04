@@ -1,4 +1,4 @@
-package com.acutecoder.crashhandler.helper;
+package com.acutecoder.crashhandler.core;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -27,7 +27,7 @@ public class ErrorLog {
 
     @NotNull
     public String simplifiedLog() {
-        if (errors == null) return "No error logs found!";
+        if (errors == null || errors.isEmpty()) return "No error logs found!";
 
         switch (errors.size()) {
             case 1:
