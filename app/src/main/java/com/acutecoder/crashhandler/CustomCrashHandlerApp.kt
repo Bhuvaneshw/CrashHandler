@@ -10,7 +10,6 @@ class CustomCrashHandlerApp : CrashHandlerApplication() {
 
         //OR
         // installCrashHandler(
-        //    thread = Thread.currentThread(),
         //    messageFormatter = DefaultErrorMessageFormatter,
         //    callback = null,
         //    logger = AndroidErrorLogger(),

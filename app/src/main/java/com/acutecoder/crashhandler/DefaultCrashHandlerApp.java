@@ -8,7 +8,7 @@ public class DefaultCrashHandlerApp extends CrashHandlerApplication {
         initCrashHandler();
 
         //OR
-        //initCrashHandler(Thread.currentThread(), DefaultErrorMessageFormatter.INSTANCE, new RestartAppCallback(this), new AndroidErrorLogger());
+        //initCrashHandler(DefaultErrorMessageFormatter.INSTANCE, new RestartAppCallback(this), new AndroidErrorLogger());
     }
 
 }

@@ -1,21 +1,21 @@
 package com.acutecoder.crashhandler.util
 
 import android.content.Context
-import com.acutecoder.crashhandler.core.CrashHandler
-import com.acutecoder.crashhandler.logger.AndroidErrorLogger
 import com.acutecoder.crashhandler.callback.CrashCallback
+import com.acutecoder.crashhandler.core.CrashHandler
+import com.acutecoder.crashhandler.core.NotCrashHandlerInstanceException
 import com.acutecoder.crashhandler.formatter.DefaultErrorMessageFormatter
 import com.acutecoder.crashhandler.formatter.ErrorMessageFormatter
+import com.acutecoder.crashhandler.logger.AndroidErrorLogger
 import com.acutecoder.crashhandler.logger.CrashLogger
-import com.acutecoder.crashhandler.core.NotCrashHandlerInstanceException
 
 fun CrashHandler.installCrashHandler(
-    thread: Thread = Thread.currentThread(),
     messageFormatter: ErrorMessageFormatter = DefaultErrorMessageFormatter,
     callback: CrashCallback? = null,
     logger: CrashLogger? = AndroidErrorLogger(),
+    vararg threads: Thread,
 ) {
-    initCrashHandler(thread, messageFormatter, callback, logger)
+    initCrashHandler(messageFormatter, callback, logger, *threads)
 }
 
 val Context.crashHandler: CrashHandler

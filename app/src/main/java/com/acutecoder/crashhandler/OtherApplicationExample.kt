@@ -11,8 +11,7 @@ import java.io.File
 
 open class SomeOtherApplication : Application()
 
-class OtherApplicationExample : SomeOtherApplication(),
-    CrashHandler {
+class OtherApplicationExample : SomeOtherApplication(), CrashHandler {
 
     init {
         installCrashHandler()

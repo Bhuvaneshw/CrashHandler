@@ -3,7 +3,6 @@ package com.acutecoder.crashhandler.core;
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.os.Looper;
-import android.util.Log;
 
 import com.acutecoder.crashhandler.callback.CrashCallback;
 import com.acutecoder.crashhandler.formatter.DefaultErrorMessageFormatter;
@@ -26,6 +25,7 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -38,31 +38,32 @@ public interface CrashHandler {
     SharedPreferences getCrashPreference();
 
     default void initCrashHandler() {
-        initCrashHandler(Thread.currentThread(), DefaultErrorMessageFormatter.INSTANCE, null, new AndroidErrorLogger());
+        initCrashHandler(DefaultErrorMessageFormatter.INSTANCE, null, new AndroidErrorLogger());
     }
 
-    default void initCrashHandler(@NotNull Thread thread, @NotNull ErrorMessageFormatter messageFormatter, @Nullable CrashCallback callback, @Nullable CrashLogger logger) {
-        thread.setUncaughtExceptionHandler((t, throwable) -> {
-                    onCatchThrowable(messageFormatter, t, throwable, logger);
-                    if (callback != null)
-                        callback.onCrash(throwable);
-                    System.exit(0);
-                }
-        );
+    default void initCrashHandler(@NotNull ErrorMessageFormatter messageFormatter, @Nullable CrashCallback callback, @Nullable CrashLogger logger, @Nullable Thread... threads) {
+        final Thread.UncaughtExceptionHandler uncaughtExceptionHandler = (t, throwable) -> {
+            onCatchThrowable(messageFormatter, t, throwable, logger);
+            if (callback != null)
+                callback.onCrash(throwable);
+            System.exit(0);
+        };
+
+        if (threads != null && threads.length > 0) {
+            for (Thread thread : threads) {
+                thread.setUncaughtExceptionHandler(uncaughtExceptionHandler);
+            }
+        } else {
+            Thread.setDefaultUncaughtExceptionHandler(uncaughtExceptionHandler);
+        }
     }
 
     default void onCatchThrowable(@NotNull ErrorMessageFormatter messageFormatter, @NotNull Thread thread, @NotNull Throwable throwable, @Nullable CrashLogger logger) {
         try {
-            if (messageFormatter == DefaultErrorMessageFormatter.INSTANCE) {
-                String message = messageFormatter.format(throwable);
-                if (logger != null)
-                    logger.log("AndroidRuntime", message);
-                onWriteThrowableMessage(getCrashFile(), message);
-            } else {
-                if (logger != null)
-                    logger.log("AndroidRuntime", DefaultErrorMessageFormatter.INSTANCE.format(throwable));
-                onWriteThrowableMessage(getCrashFile(), messageFormatter.format(throwable));
-            }
+            String message = messageFormatter.format(throwable);
+            if (logger != null)
+                logger.log("AndroidRuntime", message);
+            onWriteThrowableMessage(getCrashFile(), message);
         } catch (IOException ignored) {
         }
     }
@@ -135,7 +136,7 @@ public interface CrashHandler {
         } catch (IOException ignored) {
         }
 
-        return new ErrorLog(errors, getCrashPreference().getString(Constants.KEY_LAST_EXCEPTION_TIME, null));
+        return new ErrorLog(Collections.unmodifiableList(errors), getCrashPreference().getString(Constants.KEY_LAST_EXCEPTION_TIME, null));
     }
 
     @SuppressLint("ApplySharedPref")
@@ -144,7 +145,6 @@ public interface CrashHandler {
         editor.putBoolean(Constants.KEY_NEED_TO_SHOW_LOG, true);
         editor.putString(Constants.KEY_LAST_EXCEPTION_TIME, getCurrentDateAndTime());
         editor.commit();
-        Log.e("preference", getCrashPreference().getBoolean(Constants.KEY_NEED_TO_SHOW_LOG, false) + "");
     }
 
     @SuppressLint("ApplySharedPref")
