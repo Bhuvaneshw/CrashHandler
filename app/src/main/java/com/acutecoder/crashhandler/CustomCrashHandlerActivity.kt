@@ -13,7 +13,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -119,8 +118,6 @@ private fun ErrorBox(modifier: Modifier, errorLog: ErrorLog?) {
             .background(MaterialTheme.colorScheme.errorContainer)
             .verticalScroll(rememberScrollState())
             .horizontalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         errorLog?.let {
             SelectionContainer {
