@@ -14,6 +14,7 @@ A Crash Handling library for Android projects that automatically stores all cras
 &nbsp;&nbsp;&nbsp;&nbsp;<a href="#23-restart-after-crash">2.3 Restart after crash</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<a href="#24-custom-crash-handler">2.4 Custom Crash handler</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<a href="#25-loading-crash-data-in-activity">2.5 Loading Crash data in Activity</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#26-thread-specific-crash-handler">2.6 Thread specific crash handler</a><br>
 <a href="#2-usage">3. Custom Crash Handler UI</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<a href="#31-custom-activity-implementation">3.1 Custom Activity Implementation</a> or <a href="crashhandler/src/main/java/com/acutecoder/crashhandler/CrashHandlerActivity.kt">See File</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<a href="#32-custom-activity-implementation-for-compose">3.2 Custom Activity Implementation for Compose</a> or <a href="app/src/main/java/com/acutecoder/crashhandler/CustomCrashHandlerActivity.kt">See File</a><br>
@@ -85,7 +86,6 @@ class MyApp : CrashHandlerApplication() {
   
         //OR
         // installCrashHandler(
-        //    thread = Thread.currentThread(),
         //    messageFormatter = DefaultErrorMessageFormatter,
         //    callback = null,
         //    logger = AndroidErrorLogger(),
@@ -104,7 +104,7 @@ public class MyApp extends CrashHandlerApplication {
         initCrashHandler();
 
         //OR
-        //initCrashHandler(Thread.currentThread(), DefaultErrorMessageFormatter.INSTANCE, new RestartAppCallback(this), new AndroidErrorLogger());
+        //initCrashHandler(DefaultErrorMessageFormatter.INSTANCE, new RestartAppCallback(this), new AndroidErrorLogger());
     }
 }
 ```
@@ -231,6 +231,42 @@ List<String> errors = log.getErrors();
 String simplifiedLog = log.simplifiedLog();
 String lastErrorTime = log.getLastErrorTime();
 ```
+<br>
+
+### 2.6 Thread specific crash handler
+You can provide specific threads instead of setting it for all threads.
+<br>
+
+Kotlin
+```
+class MyApp : CrashHandlerApplication() {
+    init {
+        installCrashHandler(threads = arrayOf(myThread1, myThread2, myThreadN))
+  
+        //OR
+        // installCrashHandler(
+        //    messageFormatter = DefaultErrorMessageFormatter,
+        //    callback = null,
+        //    logger = AndroidErrorLogger(),
+        //    myThread1, myThread2, myThreadN
+        //)
+    }
+}
+```
+
+<br>
+
+Java
+```
+public class MyApp extends CrashHandlerApplication {
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        initCrashHandler(DefaultErrorMessageFormatter.INSTANCE, new RestartAppCallback(this), new AndroidErrorLogger(), myThread1, myThread2, myThreadN);
+    }
+}
+```
+<br>
 
 ## 3. Custom Crash Handler UI
 
