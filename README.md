@@ -10,7 +10,7 @@ A Crash Handling library for Android projects that automatically stores all cras
 &nbsp;&nbsp;&nbsp;&nbsp;<a href="#12-gradle---groovy-dsl">1.2 Groovy DSL</a><br>
 <a href="#2-usage">2. Usage</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<a href="#21-default-crash-handler">2.1 Default Crash Hanlder</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#22-default-formatter-and-logger">2.2 Default Formatter and Logger</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#22-formatter-and-logger">2.2 Formatter and Logger</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<a href="#23-restart-after-crash">2.3 Restart after crash</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<a href="#24-custom-crash-handler">2.4 Custom Crash handler</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<a href="#25-loading-crash-data-in-activity">2.5 Loading Crash data in Activity</a><br>
@@ -26,15 +26,15 @@ A Crash Handling library for Android projects that automatically stores all cras
 
 ### 1.1 Gradle - Kotlin DSL
 Step 1: Project level build.gradle.kts / settings.gradle.kts
-```
+<pre>
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         mavenCentral()
-        maven("https://jitpack.io")
+        <b>maven("https://jitpack.io")</b>
     }
 }
-```
+</pre>
 
 Step 2: Module level build.gradle<br>
 ```
@@ -54,15 +54,15 @@ dependencies {
 
 ### 1.2 Gradle - Groovy DSL
 Step 1: Project level build.gradle / settings.gradle
-```
+<pre>
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         mavenCentral()
-        maven { url 'https://jitpack.io' }
+        <b>maven { url 'https://jitpack.io' }</b>
     }
 }
-```
+</pre>
 
 Step 2: Module level build.gradle<br>
 ```
@@ -83,13 +83,6 @@ Koltin
 class MyApp : CrashHandlerApplication() {
     init {
         installCrashHandler()
-  
-        //OR
-        // installCrashHandler(
-        //    messageFormatter = DefaultErrorMessageFormatter,
-        //    callback = null,
-        //    logger = AndroidErrorLogger(),
-        //)
     }
 }
 ```
@@ -102,20 +95,18 @@ public class MyApp extends CrashHandlerApplication {
     public void onCreate() {
         super.onCreate();
         initCrashHandler();
-
-        //OR
-        //initCrashHandler(DefaultErrorMessageFormatter.INSTANCE, new RestartAppCallback(this), new AndroidErrorLogger());
     }
 }
 ```
 <br>
 Register in AndroidManifiest
+
 ```
-&lt;application
-        <b>android:name=".MyApp"</b>
-        ...&gt;
+<application
+        android:name=".MyApp"
+        ...>
     ...
-&lt;/application&gt;
+</application>
 ```
 <br>
 
@@ -124,13 +115,39 @@ Register in AndroidManifiest
 
 <br>
 
-### 2.2 Default Formatter and Logger
+### 2.2 Formatter and Logger
 You can provide Custom Formatter by extending [ErrorMessageFormatter](crashhandler/src/main/java/com/acutecoder/crashhandler/formatter/ErrorMessageFormatter.java) and pass it in [installCrashHandler](#21-default-crash-handler)
 
 You can provide Custom Logger by extending [CrashLogger](crashhandler/src/main/java/com/acutecoder/crashhandler/logger/CrashLogger.java) and pass it in [installCrashHandler](#21-default-crash-handler)
+Koltin
+```
+class MyApp : CrashHandlerApplication() {
+    init {
+        installCrashHandler(
+            errorMessageFormatter = DefaultErrorMessageFormatter, // OR timedErrorMessageFormatter()
+            logger = AndroidErrorLogger(),
+        )
+    }
+}
+```
+<br>
 
+Java
+```
+public class MyApp extends CrashHandlerApplication {
+    @Override
+    public void onCreate() {
+        super.onCreate();
+       initCrashHandler(DefaultErrorMessageFormatter.INSTANCE, new RestartAppCallback(this), new AndroidErrorLogger());
+
+    }
+}
+```
 > [!NOTE]
 > The default formatter is [DefaultErrorMessageFormatter](crashhandler/src/main/java/com/acutecoder/crashhandler/formatter/DefaultErrorMessageFormatter.kt) and the default logger is [AndroidErrorLogger](crashhandler/src/main/java/com/acutecoder/crashhandler/logger/AndroidErrorLogger.kt)
+
+> [!NOTE]
+> TimedErrorMessageFormatter follows Decorator Patter, to create instance use timedErrorMessageFormatter() extension function for Kotlin and new TimedErrorMessageFormatter(this, DefaultErrorMessageFormatter.INSTANCE) for Java
 
 <br>
 
@@ -156,7 +173,6 @@ public class MyApp extends CrashHandlerApplication {
         super.onCreate();
 
         initCrashHandler(
-          Thread.currentThread(), 
           DefaultErrorMessageFormatter.INSTANCE,
           new RestartAppCallback(this),
           new AndroidErrorLogger()
@@ -245,7 +261,7 @@ class MyApp : CrashHandlerApplication() {
   
         //OR
         // installCrashHandler(
-        //    messageFormatter = DefaultErrorMessageFormatter,
+        //    errorMessageFormatter = DefaultErrorMessageFormatter,
         //    callback = null,
         //    logger = AndroidErrorLogger(),
         //    myThread1, myThread2, myThreadN
