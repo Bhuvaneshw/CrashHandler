@@ -29,7 +29,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-public interface CrashHandler {
+public interface CrashHandler extends CurrentDateTimeProvider {
 
     @NotNull
     File getCrashFile();
@@ -41,9 +41,9 @@ public interface CrashHandler {
         initCrashHandler(DefaultErrorMessageFormatter.INSTANCE, null, new AndroidErrorLogger());
     }
 
-    default void initCrashHandler(@NotNull ErrorMessageFormatter messageFormatter, @Nullable CrashCallback callback, @Nullable CrashLogger logger, @Nullable Thread... threads) {
+    default void initCrashHandler(@NotNull ErrorMessageFormatter errorMessageFormatter, @Nullable CrashCallback callback, @Nullable CrashLogger logger, @Nullable Thread... threads) {
         final Thread.UncaughtExceptionHandler uncaughtExceptionHandler = (t, throwable) -> {
-            onCatchThrowable(messageFormatter, t, throwable, logger);
+            onCatchThrowable(errorMessageFormatter, t, throwable, logger);
             if (callback != null)
                 callback.onCrash(throwable);
             System.exit(0);
@@ -58,9 +58,9 @@ public interface CrashHandler {
         }
     }
 
-    default void onCatchThrowable(@NotNull ErrorMessageFormatter messageFormatter, @NotNull Thread thread, @NotNull Throwable throwable, @Nullable CrashLogger logger) {
+    default void onCatchThrowable(@NotNull ErrorMessageFormatter errorMessageFormatter, @NotNull Thread thread, @NotNull Throwable throwable, @Nullable CrashLogger logger) {
         try {
-            String message = messageFormatter.format(throwable);
+            String message = errorMessageFormatter.format(throwable);
             if (logger != null)
                 logger.log("AndroidRuntime", message);
             onWriteThrowableMessage(getCrashFile(), message);
@@ -131,7 +131,7 @@ public interface CrashHandler {
             String[] errs = plainError.toString().split(getSeparator());
             for (String err : errs) {
                 if (!err.trim().isEmpty())
-                    errors.add(err.trim());
+                    errors.add(0, err.trim());
             }
         } catch (IOException ignored) {
         }
@@ -160,10 +160,11 @@ public interface CrashHandler {
         return false;
     }
 
+    @Override
     @NotNull
     default String getCurrentDateAndTime() {
         Calendar instance = Calendar.getInstance();
-        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy, hh:mm a", Locale.getDefault());
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy, hh:mm a, z", Locale.getDefault());
         return formatter.format(instance.getTime());
     }
 

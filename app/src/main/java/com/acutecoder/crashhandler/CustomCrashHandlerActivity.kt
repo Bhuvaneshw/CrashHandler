@@ -13,6 +13,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -53,16 +54,25 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import com.acutecoder.crashhandler.core.ErrorLog
 import com.acutecoder.crashhandler.ui.theme.CrashHandlerTheme
 import com.acutecoder.crashhandler.util.crashHandler
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.io.File
 
 class CustomCrashHandlerActivity : ComponentActivity() {
+
+    private val regexErrorClass = "\\w+(\\.\\w+)+:\\s.*\n".toRegex()
+    private val regexFileInfo = "\\([\\w.]+:\\d+\\)".toRegex()
+    private val regexMoreErrorInfo = "and \\d+ more errors?".toRegex()
+    private val regexTime =
+        "Time: [0-9]{2}/[0-9]{2}/[0-9]{4}, [0-9]{2}:[0-9]{2} (AM|PM), [A-Z]{3}(\\+[0-9]{2}:[0-9]{2})?".toRegex()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,6 +93,7 @@ class CustomCrashHandlerActivity : ComponentActivity() {
 
                     LaunchedEffect(Unit) {
                         withContext(Dispatchers.IO) {
+                            delay(3333)
                             errorLog = context.crashHandler.loadErrorLog()
                         }
                     }
@@ -107,32 +118,43 @@ class CustomCrashHandlerActivity : ComponentActivity() {
             }
         }
     }
-}
 
-@Composable
-private fun ErrorBox(modifier: Modifier, errorLog: ErrorLog?) {
-    Column(
-        modifier = modifier
-            .padding(12.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.errorContainer)
-            .verticalScroll(rememberScrollState())
-            .horizontalScroll(rememberScrollState()),
-    ) {
+    @Composable
+    private fun ErrorBox(modifier: Modifier, errorLog: ErrorLog?) {
         errorLog?.let {
-            SelectionContainer {
-                Text(
-                    text = it.simplifiedLog()
-                        .buildAnnotation(
-                            "\\w+(\\.\\w+)+:\\s.*\n".toRegex() to MaterialTheme.colorScheme.error,
-                            "\\([\\w.]+:\\d+\\)".toRegex() to MaterialTheme.colorScheme.primary,
-                            "and \\d+ more errors?".toRegex() to MaterialTheme.colorScheme.primary,
-                        ),
-                    modifier = Modifier.padding(12.dp),
-                    color = MaterialTheme.colorScheme.onErrorContainer,
-                )
+            Column(
+                modifier = modifier
+                    .padding(12.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.errorContainer)
+                    .verticalScroll(rememberScrollState())
+                    .horizontalScroll(rememberScrollState()),
+            ) {
+                SelectionContainer {
+                    Text(
+                        text = it.simplifiedLog()
+                            .buildAnnotation(
+                                regexErrorClass to (MaterialTheme.colorScheme.error style null),
+                                regexFileInfo to (MaterialTheme.colorScheme.primary style null),
+                                regexMoreErrorInfo to (MaterialTheme.colorScheme.primary style null),
+                                regexTime to (MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f) style 11.sp),
+                            ),
+                        modifier = Modifier.padding(12.dp),
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
             }
-        } ?: CircularProgressIndicator(color = MaterialTheme.colorScheme.error)
+        } ?: Box(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(12.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(MaterialTheme.colorScheme.errorContainer),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(color = MaterialTheme.colorScheme.error)
+        }
     }
 }
 
@@ -147,6 +169,7 @@ private fun TopBar(lastErrorTime: String?, exitScreen: () -> Unit) {
         Text(
             text = "Error Log",
             modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.titleMedium,
         )
 
         if (lastErrorTime != null) {
@@ -259,11 +282,11 @@ private fun Context.shareLog(file: File) {
     } else Toast.makeText(this, "Crash file not found!", Toast.LENGTH_SHORT).show()
 }
 
-private fun String.buildAnnotation(vararg regexPairs: Pair<Regex, Color>) =
+private fun String.buildAnnotation(vararg regexPairs: Pair<Regex, SpanStyle>) =
     buildAnnotatedString {
         var currentIndex = 0
 
-        val matches = mutableListOf<Triple<Int, Int, Color>>()
+        val matches = mutableListOf<Triple<Int, Int, SpanStyle>>()
 
         regexPairs.forEach { (regex, highlightColor) ->
             regex.findAll(this@buildAnnotation).forEach { matchResult ->
@@ -275,11 +298,11 @@ private fun String.buildAnnotation(vararg regexPairs: Pair<Regex, Color>) =
 
         matches.sortBy { it.first }
 
-        matches.forEach { (startIndex, endIndex, highlightColor) ->
+        matches.forEach { (startIndex, endIndex, spanStyle) ->
             if (currentIndex <= startIndex) {
                 append(this@buildAnnotation.substring(currentIndex, startIndex))
 
-                withStyle(style = SpanStyle(color = highlightColor)) {
+                withStyle(style = spanStyle) {
                     append(this@buildAnnotation.substring(startIndex, endIndex))
                 }
 
@@ -291,3 +314,9 @@ private fun String.buildAnnotation(vararg regexPairs: Pair<Regex, Color>) =
             append(this@buildAnnotation.substring(currentIndex))
         }
     }
+
+private infix fun Color.style(size: TextUnit?): SpanStyle {
+    return if (size != null)
+        SpanStyle(color = this, fontSize = size)
+    else SpanStyle(color = this)
+}

@@ -49,5 +49,8 @@ private fun Main() {
         Button(onClick = { throw RuntimeException("Sample Exception") }) {
             Text(text = "Throw Exception")
         }
+        Button(onClick = { throw RuntimeException("2 Sample Exception") }) {
+            Text(text = "Throw Exception 2")
+        }
     }
 }
