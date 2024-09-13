@@ -170,6 +170,7 @@ private fun TopBar(lastErrorTime: String?, exitScreen: () -> Unit) {
             text = "Error Log",
             modifier = Modifier.weight(1f),
             style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onBackground,
         )
 
         if (lastErrorTime != null) {
@@ -188,7 +189,8 @@ private fun TopBar(lastErrorTime: String?, exitScreen: () -> Unit) {
                 .size(40.dp)
                 .clip(CircleShape)
                 .clickable { exitScreen() }
-                .padding(8.dp)
+                .padding(8.dp),
+            tint = MaterialTheme.colorScheme.onBackground,
         )
     }
 }
