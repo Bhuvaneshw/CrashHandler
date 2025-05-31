@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.acutecoder.crashhandler"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 23
@@ -30,6 +30,11 @@ android {
     }
     kotlinOptions {
         jvmTarget = "17"
+    }
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
     }
 }
 
