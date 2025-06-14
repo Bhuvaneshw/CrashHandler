@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.acutecoder.crashhandler"
+    namespace = "com.acutecoder.crashhandler.demo"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.acutecoder.crashhandler"
+        applicationId = "com.acutecoder.crashhandler.demo"
         minSdk = 23
         targetSdk = 35
         versionCode = 1

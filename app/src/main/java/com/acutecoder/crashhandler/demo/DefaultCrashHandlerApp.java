@@ -1,4 +1,6 @@
-package com.acutecoder.crashhandler;
+package com.acutecoder.crashhandler.demo;
+
+import com.acutecoder.crashhandler.CrashHandlerApplication;
 
 public class DefaultCrashHandlerApp extends CrashHandlerApplication {
 

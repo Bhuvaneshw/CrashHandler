@@ -1,4 +1,4 @@
-package com.acutecoder.crashhandler.ui.theme
+package com.acutecoder.crashhandler.demo.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

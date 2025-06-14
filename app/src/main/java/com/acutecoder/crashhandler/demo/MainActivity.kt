@@ -1,4 +1,4 @@
-package com.acutecoder.crashhandler
+package com.acutecoder.crashhandler.demo
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -17,7 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.acutecoder.crashhandler.ui.theme.CrashHandlerTheme
+import com.acutecoder.crashhandler.demo.ui.theme.CrashHandlerTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,8 +26,8 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             CrashHandlerTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Box(Modifier.padding(innerPadding)) {
+                Scaffold(modifier = Modifier.Companion.fillMaxSize()) { innerPadding ->
+                    Box(Modifier.Companion.padding(innerPadding)) {
                         Main()
                     }
                 }
@@ -40,10 +40,10 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun Main() {
     Column(
-        modifier = Modifier
+        modifier = Modifier.Companion
             .fillMaxSize()
             .padding(12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.Companion.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
         Button(onClick = { throw RuntimeException("Sample Exception") }) {

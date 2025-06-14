@@ -1,4 +1,4 @@
-package com.acutecoder.crashhandler
+package com.acutecoder.crashhandler.demo
 
 import android.content.ClipData
 import android.content.ClipDescription
@@ -59,7 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import com.acutecoder.crashhandler.core.ErrorLog
-import com.acutecoder.crashhandler.ui.theme.CrashHandlerTheme
+import com.acutecoder.crashhandler.demo.ui.theme.CrashHandlerTheme
 import com.acutecoder.crashhandler.util.crashHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -83,7 +83,7 @@ class CustomCrashHandlerActivity : ComponentActivity() {
                 val containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.6f)
 
                 Column(
-                    modifier = Modifier
+                    modifier = Modifier.Companion
                         .fillMaxSize()
                         .background(containerColor)
                         .systemBarsPadding(),
@@ -104,7 +104,7 @@ class CustomCrashHandlerActivity : ComponentActivity() {
                     )
 
                     ErrorBox(
-                        modifier = Modifier
+                        modifier = Modifier.Companion
                             .fillMaxSize()
                             .weight(1f),
                         errorLog = errorLog
@@ -139,7 +139,7 @@ class CustomCrashHandlerActivity : ComponentActivity() {
                                 regexMoreErrorInfo to (MaterialTheme.colorScheme.primary style null),
                                 regexTime to (MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f) style 11.sp),
                             ),
-                        modifier = Modifier.padding(12.dp),
+                        modifier = Modifier.Companion.padding(12.dp),
                         color = MaterialTheme.colorScheme.onErrorContainer,
                         style = MaterialTheme.typography.bodyMedium,
                     )
@@ -149,9 +149,9 @@ class CustomCrashHandlerActivity : ComponentActivity() {
             modifier = modifier
                 .fillMaxSize()
                 .padding(12.dp)
-                .clip(RoundedCornerShape(12.dp))
+                .clip(androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
                 .background(MaterialTheme.colorScheme.errorContainer),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Companion.Center
         ) {
             CircularProgressIndicator(color = MaterialTheme.colorScheme.error)
         }
@@ -161,14 +161,14 @@ class CustomCrashHandlerActivity : ComponentActivity() {
 @Composable
 private fun TopBar(lastErrorTime: String?, exitScreen: () -> Unit) {
     Row(
-        Modifier
+        Modifier.Companion
             .fillMaxWidth()
             .padding(12.dp),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.Companion.CenterVertically,
     ) {
         Text(
             text = "Error Log",
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.Companion.weight(1f),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onBackground,
         )
@@ -178,14 +178,14 @@ private fun TopBar(lastErrorTime: String?, exitScreen: () -> Unit) {
                 text = "Time: $lastErrorTime",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.6f),
-                modifier = Modifier.padding(horizontal = 6.dp)
+                modifier = Modifier.Companion.padding(horizontal = 6.dp)
             )
         }
 
         Icon(
             imageVector = Icons.Default.Close,
             contentDescription = "Close",
-            modifier = Modifier
+            modifier = Modifier.Companion
                 .size(40.dp)
                 .clip(CircleShape)
                 .clickable { exitScreen() }
@@ -200,7 +200,7 @@ private fun BottomBar(errorText: () -> String, exitScreen: () -> Unit) {
     val context = LocalContext.current
 
     Row(
-        Modifier
+        Modifier.Companion
             .fillMaxWidth()
             .padding(horizontal = 12.dp)
     ) {
@@ -213,7 +213,7 @@ private fun BottomBar(errorText: () -> String, exitScreen: () -> Unit) {
             Text(text = "Clear all")
         }
 
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.Companion.weight(1f))
 
         ErrorIconButton(
             resId = R.drawable.baseline_content_copy_24,
@@ -229,7 +229,7 @@ private fun BottomBar(errorText: () -> String, exitScreen: () -> Unit) {
             }
         )
 
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.Companion.width(8.dp))
 
         ErrorIconButton(
             resId = R.drawable.baseline_share_24,
@@ -265,7 +265,7 @@ private fun ErrorIconButton(resId: Int, contentDescription: String?, onClick: ()
         Icon(
             painter = painterResource(resId),
             contentDescription = contentDescription,
-            modifier = Modifier.padding(10.dp)
+            modifier = Modifier.Companion.padding(10.dp)
         )
     }
 }

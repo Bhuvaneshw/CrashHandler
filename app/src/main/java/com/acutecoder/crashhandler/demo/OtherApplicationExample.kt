@@ -1,8 +1,9 @@
-package com.acutecoder.crashhandler
+package com.acutecoder.crashhandler.demo
 
 import android.app.Application
 import android.content.Intent
 import android.content.SharedPreferences
+import com.acutecoder.crashhandler.CrashHandlerActivity
 import com.acutecoder.crashhandler.core.CrashHandler
 import com.acutecoder.crashhandler.util.crashHandler
 import com.acutecoder.crashhandler.util.installCrashHandler
