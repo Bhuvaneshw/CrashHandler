@@ -26,15 +26,15 @@ A Crash Handling library for Android projects that automatically stores all cras
 
 ### 1.1 Gradle - Kotlin DSL
 Step 1: Project level build.gradle.kts / settings.gradle.kts
-<pre>
+```kotlin
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         mavenCentral()
-        <b>maven("https://jitpack.io")</b>
+        maven("https://jitpack.io")
     }
 }
-</pre>
+```
 
 Step 2: Module level build.gradle<br>
 ```kotlin
@@ -54,15 +54,15 @@ dependencies {
 
 ### 1.2 Gradle - Groovy DSL
 Step 1: Project level build.gradle / settings.gradle
-<pre>
+```groovy
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         mavenCentral()
-        <b>maven { url 'https://jitpack.io' }</b>
+        maven { url 'https://jitpack.io' }
     }
 }
-</pre>
+```
 
 Step 2: Module level build.gradle<br>
 ```groovy
@@ -108,7 +108,7 @@ Register in AndroidManifiest
         ...>
     ...
 
-    <!-- If you are using default CrashHandlerActivity, register the activity -->
+    <!-- If you are using default CrashHandlerActivity, register the activity (required from lib version 1.04 onwards)-->
     <activity
         android:name="com.acutecoder.crashhandler.CrashHandlerActivity"
         android:exported="false" />
