@@ -108,7 +108,7 @@ Register in AndroidManifiest
         ...>
     ...
 
-    <!-- If you are using default CrashHandlerActivity, register the activity (required from lib version 1.04 onwards)-->
+    <!-- If you are using default CrashHandlerActivity, register the activity (required from version 1.0.4 onwards)-->
     <activity
         android:name="com.acutecoder.crashhandler.CrashHandlerActivity"
         android:exported="false" />
