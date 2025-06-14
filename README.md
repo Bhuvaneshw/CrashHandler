@@ -37,7 +37,7 @@ dependencyResolutionManagement {
 </pre>
 
 Step 2: Module level build.gradle<br>
-```
+```kotlin
 dependencies {
     implementation("com.github.Bhuvaneshw:CrashHandler:$version")
 }
@@ -46,7 +46,7 @@ Replace <b>$version</b> with latest version<br>
 Latest Version: <br>
 [![](https://jitpack.io/v/Bhuvaneshw/CrashHandler.svg)](https://jitpack.io/#Bhuvaneshw/CrashHandler)<br><br>
 <b>Example:</b>
-```
+```kotlin
 dependencies {
     implementation("com.github.Bhuvaneshw:CrashHandler:1.0.0")
 }
@@ -65,7 +65,7 @@ dependencyResolutionManagement {
 </pre>
 
 Step 2: Module level build.gradle<br>
-```
+```groovy
 dependencies {
     implementation 'com.github.Bhuvaneshw:CrashHandler:$version'
 }
@@ -78,18 +78,19 @@ dependencies {
 
 Extend Application with CrashHandlerApplication and call installCrashHandler()
 <br><br>
-Koltin
-```
+Kotlin
+```kotlin
 class MyApp : CrashHandlerApplication() {
     init {
         installCrashHandler()
     }
 }
 ```
+
 <br>
 
 Java
-```
+```Java
 public class MyApp extends CrashHandlerApplication {
     @Override
     public void onCreate() {
@@ -101,11 +102,17 @@ public class MyApp extends CrashHandlerApplication {
 <br>
 Register in AndroidManifiest
 
-```
+```xml
 <application
         android:name=".MyApp"
         ...>
     ...
+
+    <!-- If you are using default CrashHandlerActivity, register the activity -->
+    <activity
+        android:name="com.acutecoder.crashhandler.CrashHandlerActivity"
+        android:exported="false" />
+
 </application>
 ```
 <br>
@@ -119,8 +126,8 @@ Register in AndroidManifiest
 You can provide Custom Formatter by extending [ErrorMessageFormatter](crashhandler/src/main/java/com/acutecoder/crashhandler/formatter/ErrorMessageFormatter.java) and pass it in [installCrashHandler](#21-default-crash-handler)
 
 You can provide Custom Logger by extending [CrashLogger](crashhandler/src/main/java/com/acutecoder/crashhandler/logger/CrashLogger.java) and pass it in [installCrashHandler](#21-default-crash-handler)
-Koltin
-```
+Kotlin
+```kotlin
 class MyApp : CrashHandlerApplication() {
     init {
         installCrashHandler(
@@ -133,7 +140,7 @@ class MyApp : CrashHandlerApplication() {
 <br>
 
 Java
-```
+```java
 public class MyApp extends CrashHandlerApplication {
     @Override
     public void onCreate() {
@@ -156,7 +163,7 @@ public class MyApp extends CrashHandlerApplication {
 Provide RestartAppCallback() while initializing the crash handler
 <br><br>
 Kotlin
-```
+```kotlin
 class MyApp : CrashHandlerApplication() {
     init {
         installCrashHandler(callback = RestartAppCallback(this))
@@ -166,7 +173,7 @@ class MyApp : CrashHandlerApplication() {
 <br>
 
 Java
-```
+```java
 public class MyApp extends CrashHandlerApplication {
     @Override
     public void onCreate() {
@@ -187,7 +194,7 @@ public class MyApp extends CrashHandlerApplication {
 Override startCrashHandlerActivity() and provide your custom activity class
 <br><br>
 Kotlin
-```
+```kotlin
 class CustomCrashHandlerApp : CrashHandlerApplication() {
 
     init {
@@ -203,8 +210,7 @@ class CustomCrashHandlerApp : CrashHandlerApplication() {
 <br>
 
 Java
-```
-
+```java
 public class DefaultCrashHandlerApp extends CrashHandlerApplication {
 
     @Override
@@ -228,7 +234,7 @@ public class DefaultCrashHandlerApp extends CrashHandlerApplication {
 <br>
 
 Kotlin
-```
+```kotlin
 val log: ErrorLog = crashHandler.loadErrorLog()
 val errors: MutableList<String>? = log.errors
 val simplifiedLog: String = log.simplifiedLog()
@@ -239,7 +245,7 @@ val lastErrorTime: String? = log.lastErrorTime
 <br>
 
 Java
-```
+```ava
 ErrorLog log = CrashHandlerUtilsKt.getCrashHandler(context).loadErrorLog();
 //Works only when the context.applicationContext is an instance of CrashHandler,
 //i.e The application must implement CrashHandler, like extending CrashHandlerApplication
@@ -254,7 +260,7 @@ You can provide specific threads instead of setting it for all threads.
 <br>
 
 Kotlin
-```
+```kotlin
 class MyApp : CrashHandlerApplication() {
     init {
         installCrashHandler(threads = arrayOf(myThread1, myThread2, myThreadN))
@@ -273,7 +279,7 @@ class MyApp : CrashHandlerApplication() {
 <br>
 
 Java
-```
+```java
 public class MyApp extends CrashHandlerApplication {
     @Override
     public void onCreate() {
