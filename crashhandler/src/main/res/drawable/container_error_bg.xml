@@ -3,6 +3,6 @@
 
     <corners android:radius="12dp"/>
 
-    <solid android:color="@android:color/background_light"/>
+    <solid android:color="@color/error_container_bg"/>
 
 </shape>

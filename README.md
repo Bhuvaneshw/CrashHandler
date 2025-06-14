@@ -111,7 +111,7 @@ Register in AndroidManifiest
 <br>
 
 > [!NOTE]
-> This default handler will not restart app after crash. See [Restart after crash](#22-restart-after-crash) section
+> This default handler will not restart app after crash. See [Restart after crash](#23-restart-after-crash) section
 
 <br>
 

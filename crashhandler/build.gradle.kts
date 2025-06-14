@@ -38,6 +38,10 @@ android {
     }
 }
 
+dependencies {
+    implementation(libs.androidx.activity)
+}
+
 afterEvaluate {
     publishing {
         publications {

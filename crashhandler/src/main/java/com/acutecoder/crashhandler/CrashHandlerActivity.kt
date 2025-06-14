@@ -1,10 +1,9 @@
 package com.acutecoder.crashhandler
 
-import android.app.Activity
+import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipDescription
 import android.content.ClipboardManager
-import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -13,10 +12,14 @@ import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.window.OnBackInvokedDispatcher
+import androidx.activity.ComponentActivity
+import androidx.activity.enableEdgeToEdge
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.acutecoder.crashhandler.core.ErrorLog
 import com.acutecoder.crashhandler.util.crashHandler
 
-class CrashHandlerActivity : Activity() {
+class CrashHandlerActivity : ComponentActivity() {
 
     private lateinit var time: TextView
     private lateinit var logView: TextView
@@ -29,7 +32,13 @@ class CrashHandlerActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContentView(R.layout.activity_crash_handler)
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById<View>(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
 
         time = findViewById(R.id.time)
         logView = findViewById(R.id.logView)
@@ -46,6 +55,7 @@ class CrashHandlerActivity : Activity() {
         }
     }
 
+    @SuppressLint("MissingSuperCall")
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
     }
@@ -73,7 +83,7 @@ class CrashHandlerActivity : Activity() {
         }
 
         copyLog.setOnClickListener {
-            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
             val data = ClipData(
                 ClipDescription("Error log", arrayOf("text/plain")),
                 ClipData.Item(logView.text)

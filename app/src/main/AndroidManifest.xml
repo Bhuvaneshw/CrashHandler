@@ -28,6 +28,10 @@
             android:name=".CustomCrashHandlerActivity"
             android:exported="false" />
 
+        <activity
+            android:name="com.acutecoder.crashhandler.CrashHandlerActivity"
+            android:exported="false" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
